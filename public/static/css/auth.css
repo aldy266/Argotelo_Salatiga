@@ -302,6 +302,24 @@ body{
 
 }
 
+/* Hilangkan tombol show/hide password bawaan browser */
+.password-wrapper input::-ms-reveal,
+.password-wrapper input::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Hilangkan ikon autofill bawaan browser berbasis WebKit */
+.password-wrapper input::-webkit-credentials-auto-fill-button,
+.password-wrapper input::-webkit-contacts-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
 /* ==========================
    BUTTON
 ========================== */
