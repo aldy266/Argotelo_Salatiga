@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Owner Staff | AMSP</title>
+
+    <!-- Google Font -->
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- CSS -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/owner_staff.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/attendance_modal.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/owner_account_controls.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/owner_sidebar.css') }}">
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <!-- ======================================
+                    SIDEBAR
+    ======================================= -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+
+            <img src="{{ url_for('static', filename='images/logo RB.png') }}"
+                 alt="Logo">
+
+            <h2>
+
+                ARGOTELO SALATIGA
+
+            </h2>
+
+        </div>
+
+     <nav class="sidebar-menu">
+
+    <a href="{{ url_for('owner.owner_dashboard') }}">
+        <i class="bi bi-grid-fill"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="{{ url_for('owner.owner_transaction') }}">
+        <i class="bi bi-receipt-cutoff"></i>
+        <span>Riwayat Transaksi</span>
+    </a>
+
+    <a href="{{ url_for('owner.owner_inventory') }}">
+        <i class="bi bi-box-seam"></i>
+        <span>Inventory</span>
+    </a>
+
+    <a href="{{ url_for('owner.owner_staff') }}" class="active">
+        <i class="bi bi-people-fill"></i>
+        <span>Staff</span>
+    </a>
+
+    {% if current_user_role in ["FINANCE", "TIM_FINANCE"] %}
+    <a href="#" class="js-attendance-trigger">
+        <i class="bi bi-person-check"></i>
+        <span>Absensi</span>
+    </a>
+    {% endif %}
+
+    {% if current_user_role == "OWNER" %}
+    <a href="{{ url_for('owner.owner_menu') }}">
+        <i class="bi bi-card-list"></i>
+        <span>Menu Management</span>
+    </a>
+    {% endif %}
+
+</nav>
+
+<div class="sidebar-footer">
+
+<a href="{{ url_for('auth.logout_page') }}" class="logout">
+    <i class="bi bi-box-arrow-right"></i>
+    <span>Sign Out</span>
+</a>
+
+</div>
+
+</aside>
+
+<!-- ======================================
+            MAIN CONTENT
+======================================= -->
+    <main class="main-content">
+
+        <!-- ======================================
+                    STATISTICS
+        ======================================= -->
+
+        <section class="statistics">
+
+            <div class="stat-card">
+
+                <div class="stat-icon brown">
+
+                    <i class="bi bi-person-check-fill"></i>
+
+                </div>
+
+                <div class="stat-content">
+
+                    <span>
+
+                        Hadir
+
+                    </span>
+
+                    <h2 id="stat-present">
+
+                        0 / 0
+
+                    </h2>
+
+                    <small class="success" id="stat-rate">
+
+                        0% Attendance
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon red">
+
+                    <i class="bi bi-clock-fill"></i>
+
+                </div>
+
+                <div class="stat-content">
+
+                    <span>
+
+                        Terlambat
+
+                    </span>
+
+                    <h2 id="stat-late">
+
+                        0 Staff
+
+                    </h2>
+
+                    <small class="danger" id="stat-avg-late">
+
+                        Tidak ada keterlambatan
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon gray">
+
+                    <i class="bi bi-file-earmark-medical-fill"></i>
+
+                </div>
+
+                <div class="stat-content">
+
+                    <span>
+
+                        Izin / Sakit
+
+                    </span>
+
+                    <h2 id="stat-leave">
+
+                        0 Staff
+
+                    </h2>
+
+                    <small id="stat-approval">
+
+                        Perlu Approval
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ======================================
+                    STAFF CONTENT
+        ======================================= -->
+
+        <section class="staff-content">
+
+                <!-- ===============================
+                        GRID ATAS
+                ================================ -->
+
+                <div class="staff-layout">
+
+                    <!-- ======================================
+                            ATTENDANCE
+                    ======================================= -->
+
+                    <div class="attendance-card">
+
+                        <!-- HEADER -->
+
+                        <div class="attendance-header">
+
+                            <div class="attendance-title">
+
+                                <h2 id="attendanceTitle">
+                                    Daftar Kehadiran Hari Ini
+                                </h2>
+
+                                <span id="today-date">
+                                    Memuat tanggal...
+                                </span>
+
+                            </div>
+
+                            <div class="attendance-action">
+
+                                <label class="attendance-date-filter">
+
+                                    <i class="bi bi-calendar-event"></i>
+
+                                    <input
+                                        id="attendanceDateInput"
+                                        type="date">
+
+                                </label>
+
+                                <div class="attendance-search">
+
+                                    <i class="bi bi-search"></i>
+
+                                    <input
+                                        type="text"
+                                        placeholder="Cari karyawan...">
+
+                                </div>
+
+                                <button
+                                    class="primary-button"
+                                    id="btn-top-schedule"
+                                    type="button">
+
+                                    <i class="bi bi-plus-lg"></i>
+
+                                    Tambah Penjadwalan
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <!-- TABLE -->
+                        
+                        <table class="attendance-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Masuk</th>
+                                    <th>Pulang</th>
+                                    <th>Shift</th>
+                                    <th>Status</th>
+                                    <th>Jam Kerja</th>
+                                    <th>Aksi</th>
+                                </tr>
+                                </thead>
+
+                            <tbody id="attendanceTableBody">
+
+                            </tbody>
+
+                        </table>
+
+                        <!-- FOOTER -->
+                        <div class="attendance-footer">
+
+                            <button
+                                id="btnViewAttendance"
+                                class="view-all-btn"
+                                type="button"
+                                title="Lihat semua kehadiran"
+                                aria-label="Lihat semua kehadiran">
+
+                                <i class="bi bi-clock-history"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+                    <!-- ======================================
+                            RIGHT PANEL
+                    ====================================== -->
+
+                    <div class="right-panel">
+
+                        <!-- ===============================
+                                MONTH SUMMARY
+                        ================================ -->
+
+                        <div class="summary-card">
+
+                            <div class="card-header">
+                                <h3>Ringkasan Bulan Ini</h3>
+                            </div>
+
+                            <div class="attendance-progress">
+
+                                <div class="progress-title">
+                                    <span>Tingkat Kehadiran</span>
+                                    <strong id="month-rate">0%</strong>
+                                </div>
+
+                                <div class="progress-bar">
+                                    <div class="progress-fill"
+                                        id="progress-fill"
+                                        style="width:0%;">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="summary-box">
+
+                                <div class="summary-item">
+                                    <small>Total Hadir</small>
+                                    <h2 id="month-attended">0</h2>
+                                </div>
+
+                                <div class="summary-item">
+                                    <small>Total Izin</small>
+                                    <h2 id="month-leave">0</h2>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ===============================
+                                SHIFT MANAGEMENT
+                        ================================ -->
+
+                        <div class="shift-card">
+
+                            <div class="card-header">
+                                <h3>Manajemen Shift</h3>
+                            </div>
+
+                            <div id="shift-container">
+
+                                <div style="padding:20px;text-align:center;color:var(--text-light);">
+
+                                    <p>Memuat data shift...</p>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                class="add-schedule"
+                                id="btn-add-shift"
+                                type="button">
+
+                                <i class="bi bi-plus-lg"></i>
+
+                                Tambah Shift
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- ===============================
+                                APPROVAL
+                        ================================ -->
+
+                        <div class="approval-card">
+
+                            <div class="card-header">
+                                <h3>Menunggu Persetujuan</h3>
+                            </div>
+
+                            <div id="approval-container">
+
+                                <div style="padding:20px;text-align:center;color:var(--text-light);">
+
+                                    <p>Memuat permohonan...</p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ======================================
+                            END STAFF LAYOUT
+                    ====================================== -->
+
+                    </div>
+
+                    <div class="leave-documents-card" id="leaveDocumentsCard" hidden>
+
+                        <div class="leave-documents-header">
+
+                            <div>
+
+                                <h2>
+                                    <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                                    Kelola Surat Izin
+                                </h2>
+
+                                <p>
+                                    Pantau lampiran izin, sakit, dan cuti yang menunggu review Owner.
+                                </p>
+
+                            </div>
+
+                            <button
+                                class="secondary-button"
+                                id="refreshLeaveDocuments"
+                                type="button">
+
+                                <i class="bi bi-arrow-clockwise"></i>
+
+                                Refresh
+
+                            </button>
+
+                        </div>
+
+                        <div class="leave-documents-toolbar">
+
+                            <div class="employee-search">
+
+                                <i class="bi bi-search"></i>
+
+                                <input
+                                    id="leaveDocumentSearch"
+                                    type="search"
+                                    placeholder="Cari nama karyawan atau alasan...">
+
+                            </div>
+
+                            <select id="leaveDocumentStatus">
+
+                                <option value="">Semua Status</option>
+                                <option value="PENDING">Menunggu</option>
+                                <option value="APPROVED">Disetujui</option>
+                                <option value="REJECTED">Ditolak</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="leave-documents-table-wrapper">
+
+                            <table class="leave-documents-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Karyawan</th>
+                                        <th>Jenis</th>
+                                        <th>Tanggal</th>
+                                        <th>Alasan</th>
+                                        <th>Lampiran</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody id="leaveDocumentsTable">
+
+                                    <tr>
+
+                                        <td colspan="7" class="table-loading">
+                                            Memuat surat izin...
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ======================================
+                            DATA KARYAWAN
+                    ====================================== -->
+
+                    <div class="employee-card">
+
+                        <!-- HEADER -->
+
+                        <div class="employee-header">
+
+                            <div>
+
+                                <h2>
+                                    <i class="bi bi-people-fill" aria-hidden="true"></i>
+                                    Data Karyawan
+                                </h2>
+
+                                <p>
+                                    Kelola akun login staff Argotelo
+                                </p>
+
+                            </div>
+
+                            <button
+                                class="primary-button"
+                                id="btnAddEmployee"
+                                type="button">
+
+                                <i class="bi bi-person-plus-fill"></i>
+
+                                Tambah Akun
+
+                            </button>
+
+                        </div>
+
+                        <!-- TOOLBAR -->
+
+                        <div class="employee-toolbar">
+
+                            <div class="employee-search">
+
+                                <i class="bi bi-search"></i>
+
+                                <input
+                                    id="employeeSearch"
+                                    type="search"
+                                    placeholder="Cari nama atau username...">
+
+                            </div>
+
+                            <select id="employeeRoleFilter">
+
+                                <option value="">
+                                    Semua Role
+                                </option>
+
+                                <option value="OWNER">
+                                    Owner & Agency Service
+                                </option>
+
+                                <option value="FINANCE">
+                                    Finance
+                                </option>
+
+                                <option value="TIM_FINANCE">
+                                    Tim Finance
+                                </option>
+
+                                <option value="QC">
+                                    QC
+                                </option>
+
+                                <option value="KOORDINATOR_TOKO">
+                                    Koordinator Toko
+                                </option>
+
+                                <option value="TIM_TOKO">
+                                    Tim Toko
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- TABLE -->
+
+                        <div class="employee-table-wrapper">
+
+                            <table class="employee-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Nama</th>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Last Login</th>
+                                        <th width="170">Aksi</th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody id="employeeTable">
+
+                                    <tr>
+
+                                        <td colspan="6" class="table-loading">
+
+                                            Memuat data...
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <!-- PAGINATION -->
+
+                        <div class="employee-footer">
+
+                            <span id="employeeInfo" aria-live="polite">
+
+                                Menampilkan 0 data
+
+                            </span>
+
+                            <div class="pagination">
+
+                                <button
+                                    id="employeePrev"
+                                    class="secondary-button"
+                                    type="button"
+                                    aria-label="Halaman sebelumnya"
+                                    disabled>
+
+                                    <i class="bi bi-chevron-left"></i>
+
+                                </button>
+
+                                <span id="employeePage" aria-live="polite">
+
+                                    1 / 1
+
+                                </span>
+
+                                <button
+                                    id="employeeNext"
+                                    class="secondary-button"
+                                    type="button"
+                                    aria-label="Halaman berikutnya"
+                                    disabled>
+
+                                    <i class="bi bi-chevron-right"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    </section>
+
+    <!-- ALL STAFF MODAL -->
+    <div class="menu-modal-backdrop hidden" id="allStaffModal">
+        <div class="menu-modal staff-list-modal" role="dialog" aria-modal="true">
+            <div class="menu-modal-header">
+                <h2>Semua Karyawan</h2>
+                <button class="modal-close" id="closeAllStaffModal" type="button" aria-label="Tutup">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="menu-form">
+                <input id="allStaffSearch" type="search" placeholder="Cari nama, kode, divisi, atau jabatan...">
+                <div class="staff-list-table" id="allStaffList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCHEDULE MODAL -->
+    <div class="menu-modal-backdrop hidden" id="scheduleModal">
+        <div class="menu-modal" role="dialog" aria-modal="true">
+            <div class="menu-modal-header">
+                <h2 id="scheduleModalTitle">Tambah Jadwal Staff</h2>
+                <button class="modal-close" id="closeScheduleModal" type="button" aria-label="Tutup">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="menu-form">
+                <label>
+                    Staff
+                    <select 
+                        id="scheduleStaffSelect"
+                        class="scroll-select">
+                    </select>
+                </label>
+                <label>
+                    Shift
+                    <select id="scheduleShiftSelect"></select>
+                </label>
+                <label id="scheduleRangeLabel">
+                    Rentang Jadwal
+                    <select 
+                        id="scheduleRangeSelect"
+                        class="scroll-select">
+
+                        <option value="single">Satu tanggal</option>
+                        <option value="tomorrow">Besok</option>
+                        <option value="week">1 minggu ke depan</option>
+                        <option value="month">1 bulan ke depan</option>
+                        <option value="year">1 tahun ke depan</option>
+                        <option value="custom">Custom</option>
+
+                    </select>
+                </label>
+                <div class="form-row" id="scheduleDateRange">
+                    <label>
+                        Tanggal Mulai
+                        <input id="scheduleDateInput" type="date">
+                    </label>
+                    <label>
+                        Tanggal Selesai
+                        <input id="scheduleEndDateInput" type="date">
+                    </label>
+                </div>
+                <p class="modal-help schedule-range-help" id="scheduleRangeHelp">
+                    Pilih rentang jadwal sesuai kebutuhan owner.
+                </p>
+                <div class="menu-form-actions">
+                    <button class="cancel-btn" id="cancelSchedule" type="button">Batal</button>
+                    <button class="save-btn" id="saveSchedule" type="button">Simpan Jadwal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEAVE / SICK MODAL -->
+    <div class="menu-modal-backdrop hidden" id="leaveModal">
+        <div class="menu-modal" role="dialog" aria-modal="true">
+            <div class="menu-modal-header">
+                <h2>Izin / Sakit</h2>
+                <button class="modal-close" id="closeLeaveModal" type="button" aria-label="Tutup">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="menu-form">
+                <input id="leaveStaffId" type="hidden">
+                <div>
+                    <label><strong>Karyawan</strong></label>
+                    <p class="modal-readonly-value" id="leaveStaffName">-</p>
+                </div>
+                <label>
+                    Jenis
+                    <select id="leaveTypeSelect">
+                        <option value="PERMISSION">Izin</option>
+                        <option value="SICK">Sakit</option>
+                        <option value="LEAVE">Cuti</option>
+                    </select>
+                </label>
+                <div class="form-row">
+                    <label>
+                        Tanggal Mulai
+                        <input id="leaveStartDateInput" type="date">
+                    </label>
+                    <label>
+                        Tanggal Selesai
+                        <input id="leaveEndDateInput" type="date">
+                    </label>
+                </div>
+                <label>
+                    Alasan
+                    <textarea id="leaveReasonInput" rows="4" placeholder="Contoh: sakit demam / izin keluarga"></textarea>
+                </label>
+                <label>
+                    Lampiran Surat Izin
+                    <span class="leave-file-picker">
+                        <i class="bi bi-paperclip"></i>
+                        <strong id="leaveDocumentName">Pilih file surat</strong>
+                        <small>PDF, gambar, DOC, atau DOCX. Maksimal 5 MB.</small>
+                        <input id="leaveDocumentInput" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" hidden>
+                    </span>
+                </label>
+                <input id="leaveAutoApprove" type="hidden" value="false">
+                <p class="modal-help">
+                    Pengajuan akan masuk ke Owner untuk disetujui.
+                </p>
+                <div class="menu-form-actions">
+                    <button class="cancel-btn" id="cancelLeave" type="button">Batal</button>
+                    <button class="save-btn" id="saveLeave" type="button">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHIFT MODAL -->
+    <div class="menu-modal-backdrop hidden" id="shiftModal">
+        <div class="menu-modal" role="dialog" aria-modal="true">
+           <div class="menu-modal-header">
+                <h2 id="shiftModalTitle">Edit Shift</h2>
+                <button class="modal-close" id="closeShiftModal" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="menu-form">
+                <label>
+                    Nama Shift
+                    <input id="shiftNameInput" type="text" placeholder="Contoh: Morning Shift">
+                </label>
+                <div class="form-row">
+                    <label>
+                        Jam Mulai
+                        <input id="shiftStartInput" type="time">
+                    </label>
+                    <label>
+                        Jam Selesai
+                        <input id="shiftEndInput" type="time">
+                    </label>
+                </div>
+                <label>
+                    Toleransi Terlambat (menit)
+                    <input id="shiftToleranceInput" type="number" min="0" step="1" placeholder="10">
+                </label>
+                <div class="menu-form-actions">
+                    <button class="cancel-btn" id="cancelShift" type="button">Batal</button>
+                    <button class="save-btn" id="saveShift" type="button">Simpan Shift</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===============================
+        REVIEW IZIN MODAL
+    ================================ -->
+
+    <div id="reviewModal" class="menu-modal-backdrop hidden">
+
+        <div class="menu-modal">
+
+            <div class="menu-modal-header">
+
+                <h2>Detail Pengajuan</h2>
+
+                <button 
+                    id="closeReviewModal"
+                    class="modal-close">
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="menu-form">
+
+
+                <label>
+                    Nama Karyawan
+                    <input 
+                        id="reviewName"
+                        readonly>
+                </label>
+
+
+                <label>
+                    Jenis Pengajuan
+                    <input 
+                        id="reviewType"
+                        readonly>
+                </label>
+
+
+                <label>
+                    Keterangan
+
+                    <textarea 
+                        id="reviewReason"
+                        readonly>
+                    </textarea>
+
+                </label>
+
+
+                <div class="modal-action">
+
+                    <button 
+                        class="delete-btn"
+                        id="rejectRequest">
+
+                        Tolak
+
+                    </button>
+
+
+                    <button 
+                        class="primary-button"
+                        id="approveRequest">
+
+                        Setujui
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+   <!-- =====================================================
+    MODAL RIWAYAT KEHADIRAN
+    ===================================================== -->
+
+    <div id="attendanceModal" class="menu-modal-backdrop hidden">
+
+        <div class="menu-modal attendance-history-modal">
+
+            <div class="menu-modal-header">
+
+                <h2>Semua Data Kehadiran</h2>
+
+                <button
+                    id="closeAttendanceModal"
+                    class="modal-close"
+                    type="button">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+            <div class="menu-form">
+
+                <!-- ===========================
+                    FILTER
+                ============================ -->
+
+                <div class="attendance-history-toolbar">
+
+                    <input
+                        type="search"
+                        id="historySearch"
+                        placeholder="Cari nama karyawan...">
+
+                    <input
+                        type="date"
+                        id="historyStartDate">
+
+                    <input
+                        type="date"
+                        id="historyEndDate">
+
+                    <select id="historyStatus">
+
+                        <option value="">Semua Status</option>
+                        <option value="PRESENT">Hadir</option>
+                        <option value="LATE">Terlambat</option>
+                        <option value="LEAVE">Izin</option>
+                        <option value="SICK">Sakit</option>
+                        <option value="NOT_CHECKED_IN">Belum Hadir</option>
+
+                    </select>
+
+                    <button
+                        id="resetHistoryFilter"
+                        class="secondary-button">
+
+                        Reset
+
+                    </button>
+
+                </div>
+
+                <!-- ===========================
+                    TABLE
+                ============================ -->
+
+                <table class="attendance-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Karyawan</th>
+                            <th>Tanggal</th>
+                            <th>Masuk</th>
+                            <th>Pulang</th>
+                            <th>Shift</th>
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="attendanceHistoryTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+     MODAL TAMBAH AKUN
+    ===================================================== -->
+
+    <div id="employeeModal" class="menu-modal-backdrop hidden">
+
+        <div class="menu-modal">
+
+            <div class="menu-modal-header">
+
+                <h2 id="employeeModalTitle">
+                    Tambah Akun Staff
+                </h2>
+
+                <button
+                    id="closeEmployeeModal"
+                    class="modal-close"
+                    type="button">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+            <div class="menu-form">
+
+                <label>
+                    Nama Lengkap
+                    <input
+                        id="employeeName"
+                        type="text"
+                        placeholder="Masukkan nama">
+                </label>
+
+                <label>
+                    Username
+                    <input
+                        id="employeeUsername"
+                        type="text"
+                        placeholder="Masukkan username">
+                </label>
+
+                <label>
+                    Password
+                    <input
+                        id="employeePassword"
+                        type="password"
+                        placeholder="Minimal 8 karakter">
+                </label>
+
+                <label>
+                    Role
+                    <select id="employeeRole">
+
+                        <option value="FINANCE">Finance</option>
+                        <option value="TIM_FINANCE">Tim Finance</option>
+                        <option value="QC">QC</option>
+                        <option value="TRAINER_BD">Trainer & Business Development</option>
+                        <option value="TIM_TRAINER_BD">Tim Trainer & BD</option>
+                        <option value="GUDANG_PENGIRIMAN">Gudang dan Pengiriman</option>
+                        <option value="TIM_GUDANG">Tim Gudang</option>
+                        <option value="KOORDINATOR_TOKO">Koordinator Toko</option>
+                        <option value="TIM_TOKO">Tim Toko</option>
+                        <option value="KOORDINATOR_PRODUKSI">Koordinator Produksi</option>
+                        <option value="TIM_PRODUKSI">Tim Produksi</option>
+                        <option value="KOOR_IPAL_BAHAN_BAKU">Koor IPAL & Bahan Baku</option>
+                        <option value="TIM_IPAL_BAHAN_BAKU">Tim IPAL & Bahan Baku</option>
+                        <option value="KOOR_PRODUK_OLAHAN">Koor Produk Olahan</option>
+                        <option value="TIM_PRODUK_OLAHAN">Tim Produk Olahan</option>
+
+                    </select>
+                </label>
+
+                <div class="modal-action">
+
+                    <button
+                        id="cancelEmployee"
+                        class="secondary-button">
+
+                        Batal
+
+                    </button>
+
+                    <button
+                        id="saveEmployee"
+                        class="primary-button">
+
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% if current_user_role in ["FINANCE", "TIM_FINANCE"] %}
+{% include '_attendance_modal.html' %}
+{% endif %}
+
+    <script src="{{ url_for('static', filename='js/role_access_ui.js') }}?v=20260712-3"></script>
+    <script src="{{ url_for('static', filename='js/owner_staff.js') }}?v=20260712-11"></script>
+    <script src="{{ url_for('static', filename='js/owner_account_controls.js') }}"></script>
+{% if current_user_role in ["FINANCE", "TIM_FINANCE"] %}
+    <script src="{{ url_for('static', filename='js/attendance_modal.js') }}"></script>
+{% endif %}
+
+</body>
+
+</html>
+

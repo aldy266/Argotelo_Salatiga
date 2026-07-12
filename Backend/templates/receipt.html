@@ -1,0 +1,379 @@
+{% set payment_label = {
+    "CASH": "Cash",
+    "CASHLESS": "Cashless",
+    "QRIS": "QRIS",
+    "EWALLET": "E-Wallet",
+    "DEBIT": "Debit"
+}.get(transaction.payment_method, transaction.payment_method) %}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt {{ transaction.transaction_number }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin:0; font-family:"Poppins",sans-serif; background:#FBF3EE; color:#2F1D0F; }
+        .page { min-height:100vh; display:grid; place-items:center; padding:48px 20px; }
+        .receipt { width:min(600px,100%); background:#fff; border-radius:12px; padding:46px 48px; box-shadow:0 20px 60px rgba(75,46,19,.08); }
+        h1, h2, h3, p { margin:0; }
+        .center { text-align: center; }
+        .logo { width:92px; height:92px; object-fit:contain; margin:0 auto 22px; }
+        .title { font-size:26px; font-weight:800; margin-bottom:8px; }
+        .muted { color:#6F6259; font-size:14px; line-height:1.5; }
+        .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:38px; }
+        .meta-box:nth-child(even) { text-align:right; }
+        .label { display:block; color:#6F6259; text-transform:uppercase; letter-spacing:.08em; font-size:12px; margin-bottom:8px; }
+        .value { font-size:16px; font-weight:700; }
+        .badge { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:7px 12px; background:#E6E2CD; color:#56553B; font-size:13px; font-weight:600; }
+        .line { border-top:1px solid #E4D8CF; margin:34px 0; }
+        .items-head, .row { display:flex; justify-content:space-between; gap:16px; }
+        .items-head { color:#4F453E; text-transform:uppercase; letter-spacing:.12em; font-size:13px; margin-bottom:20px; }
+        .item { margin-bottom:22px; }
+        .item h3 { font-size:16px; margin-bottom:4px; }
+        .item small { color:#6F6259; }
+        .row { align-items:flex-start; margin:10px 0; }
+        .summary .row { color:#5C514A; }
+        .grand-total { display:flex; justify-content:space-between; align-items:flex-end; margin-top:26px; }
+        .grand-total span { font-size:20px; font-weight:800; }
+        .grand-total strong { font-size:38px; line-height:1; }
+        .cash-summary { margin-top:22px; padding:16px; border:1px solid #ECD8CA; border-radius:8px; background:#FFF8F2; }
+        .cash-summary .row { margin:0; }
+        .cash-summary .row + .row { margin-top:10px; padding-top:10px; border-top:1px solid #ECD8CA; }
+        .cash-summary span { font-weight:600; }
+        .cash-summary strong { color:#2F1D0F; }
+        .cash-summary .change-row strong { color:#15803D; font-size:18px; }
+        .thanks { margin-top:46px; text-align:center; color:#5C514A; font-size:14px; }
+        .actions { width:min(600px,100%); display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+        .actions button { height:48px; border-radius:8px; font:inherit; font-weight:700; cursor:pointer; }
+        .print { border:0; background:#4B2E13; color:#fff; }
+        .share{
+            width:100%;
+            height:48px;
+            border:2px solid #4B2E13;
+            background:transparent;
+            color:#4B2E13;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+        }
+        .share-menu { position:relative;width:100%; }
+        .share-dropdown{
+            display:none;
+            position:absolute;
+            right:0;
+            bottom:56px;
+            width:220px;
+            background:#fff;
+            border:1px solid #E4D8CF;
+            border-radius:10px;
+            box-shadow:0 10px 30px rgba(0,0,0,.15);
+            overflow:hidden;
+            z-index:999;
+        }
+
+        .share-dropdown.show{
+            display:block;
+        }
+
+        .share-dropdown button{
+            width:100%;
+            height:48px;
+            border:none;
+            background:#fff;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:0 18px;
+            cursor:pointer;
+            font:inherit;
+            color:#2F1D0F;
+        }
+
+        .share-dropdown button:hover{
+            background:#F6E8DD;
+        }
+        @media print {
+            body { background:#fff; }
+            .page { padding:0; display:block; }
+            .receipt { width:100%; box-shadow:none; border-radius:0; }
+            .actions { display:none; }
+        }
+        @media (max-width:560px) {
+            .receipt { padding:34px 24px; }
+            .meta-grid { grid-template-columns:1fr; }
+            .meta-box:nth-child(even) { text-align:left; }
+            .grand-total strong { font-size:30px; }
+            .actions { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <main>
+            <section class="receipt" id="receipt">
+                <div class="center">
+                    <img class="logo" src="{{ url_for('static', filename='images/logo RB.png') }}" alt="Argotelo">
+                    <h1 class="title">ARGOTELO SALATIGA</h1>
+                    <p class="muted">Jl. Lingkar Selatan, Blotongan, Sidorejo, Kota<br>Salatiga, Jawa Tengah 50715</p>
+                </div>
+
+                <div class="meta-grid">
+                    <div class="meta-box">
+                        <span class="label">Date & Time</span>
+                        <strong class="value">{{ transaction.created_at.strftime("%d %b %Y - %H:%M") if transaction.created_at else "-" }}</strong>
+                    </div>
+                    <div class="meta-box">
+                        <span class="label">Receipt No.</span>
+                        <strong class="value">#{{ transaction.transaction_number }}</strong>
+                    </div>
+                    <div class="meta-box">
+                        <span class="label">Cashier</span>
+                        <strong class="value">{{ transaction.cashier.fullname if transaction.cashier else "-" }}</strong>
+                    </div>
+                    <div class="meta-box">
+                        <span class="label">Status</span>
+                        <span class="badge"><i class="bi bi-check-circle-fill"></i> Paid via {{ payment_label }}</span>
+                    </div>
+                </div>
+
+                <div class="line"></div>
+
+                <div class="items-head">
+                    <span>Items</span>
+                    <span>Total</span>
+                </div>
+
+                {% for item in transaction.items %}
+                <div class="item row">
+                    <div>
+                        <h3>{{ item.menu_item.name }}</h3>
+                        <small>{{ item.quantity }} x Rp {{ "{:,.0f}".format(item.unit_price).replace(",", ".") }}</small>
+                    </div>
+                    <strong>Rp {{ "{:,.0f}".format(item.subtotal).replace(",", ".") }}</strong>
+                </div>
+                {% endfor %}
+
+                <div class="line"></div>
+
+                <div class="summary">
+                    <div class="row">
+                        <span>Subtotal</span>
+                        <strong>Rp {{ "{:,.0f}".format(transaction.subtotal).replace(",", ".") }}</strong>
+                    </div>
+                    <div class="row">
+                        <span>Tax</span>
+                        <strong>Rp {{ "{:,.0f}".format(transaction.tax).replace(",", ".") }}</strong>
+                    </div>
+                    <div class="grand-total">
+                        <span>Total</span>
+                        <strong>Rp {{ "{:,.0f}".format(transaction.total).replace(",", ".") }}</strong>
+                    </div>
+                    {% if transaction.payment_method == "CASH" and transaction.cash_received is not none %}
+                    <div class="cash-summary">
+                        <div class="row">
+                            <span>Uang Diterima</span>
+                            <strong>Rp {{ "{:,.0f}".format(transaction.cash_received).replace(",", ".") }}</strong>
+                        </div>
+                        <div class="row change-row">
+                            <span>Kembali</span>
+                            <strong>Rp {{ "{:,.0f}".format(transaction.cash_change or 0).replace(",", ".") }}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <p class="thanks">Thank you for visiting Argotelo.<br>WWW.ARGOTELO.ID</p>
+            </section>
+
+            <div class="actions">
+                <button class="print" type="button" onclick="window.print()"><i class="bi bi-printer"></i> Print Receipt</button>
+                <div class="share-menu">
+
+                    <button
+                        class="share"
+                        type="button"
+                        id="shareReceipt">
+
+                        <i class="bi bi-share"></i>
+
+                        Share
+
+                    </button>
+
+                    <div
+                        class="share-dropdown"
+                        id="shareDropdown">
+
+                        <button id="shareWhatsapp">
+
+                            <i class="bi bi-whatsapp"></i>
+
+                            WhatsApp
+
+                        </button>
+
+                        <button id="shareTelegram">
+
+                            <i class="bi bi-telegram"></i>
+
+                            Telegram
+
+                        </button>
+
+                        <button id="shareEmail">
+
+                            <i class="bi bi-envelope"></i>
+
+                            Email
+
+                        </button>
+
+                        <button id="downloadReceipt">
+
+                            <i class="bi bi-image"></i>
+
+                            Download PNG
+
+                        </button>
+
+                        <button onclick="window.print()">
+
+                            <i class="bi bi-printer"></i>
+
+                            Print
+
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        const shareBtn = document.getElementById("shareReceipt");
+        const dropdown = document.getElementById("shareDropdown");
+
+        // Buka / tutup menu Share
+        shareBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        // Tutup menu jika klik di luar
+        document.addEventListener("click", (e) => {
+
+            if (!e.target.closest(".share-menu")) {
+
+                dropdown.classList.remove("show");
+
+            }
+
+        });
+
+        // ==========================
+        // DOWNLOAD PNG
+        // ==========================
+
+        document.getElementById("downloadReceipt").addEventListener("click", async () => {
+
+            dropdown.classList.remove("show");
+
+            const receipt = document.getElementById("receipt");
+
+            const canvas = await html2canvas(receipt,{
+                scale:2,
+                backgroundColor:"#fff",
+                useCORS:true
+            });
+
+            const url = canvas.toDataURL("image/png");
+
+            const a = document.createElement("a");
+
+            a.href = url;
+            a.download = "Receipt-{{ transaction.transaction_number }}.png";
+
+            document.body.appendChild(a);
+
+            a.click();
+
+            a.remove();
+
+            URL.revokeObjectURL(url);
+
+        });
+
+        // ==========================
+        // WHATSAPP
+        // ==========================
+
+        document.getElementById("shareWhatsapp").addEventListener("click",()=>{
+            dropdown.classList.remove("show");
+            const text =
+        `Receipt Argotelo
+
+        No :
+        {{ transaction.transaction_number }}
+
+        Total :
+        Rp {{ "{:,.0f}".format(transaction.total).replace(",", ".") }}
+
+        ${window.location.href}`;
+
+            window.open(
+                "https://wa.me/?text="+encodeURIComponent(text),
+                "_blank"
+            );
+
+        });
+
+        // ==========================
+        // TELEGRAM
+        // ==========================
+
+        document.getElementById("shareTelegram").addEventListener("click",()=>{
+
+            dropdown.classList.remove("show");
+            const text =
+        `Receipt Argotelo
+        No : {{ transaction.transaction_number }}
+        Total : Rp {{ "{:,.0f}".format(transaction.total).replace(",", ".") }}`;
+
+            window.open(
+                "https://t.me/share/url?url="+
+                encodeURIComponent(window.location.href)+
+                "&text="+
+                encodeURIComponent(text),
+                "_blank"
+            );
+
+        });
+
+        // ==========================
+        // EMAIL
+        // ==========================
+
+        document.getElementById("shareEmail").addEventListener("click",()=>{
+            dropdown.classList.remove("show");
+            location.href =
+            "mailto:?subject=Receipt Argotelo&body="+
+            encodeURIComponent(window.location.href);
+
+        });
+    </script>
+</body>
+
+</html>

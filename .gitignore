@@ -1,0 +1,33 @@
+# ENV
+.env
+**/.env
+Backend/.env
+
+
+# PYTHON
+__pycache__/
+**/__pycache__/
+
+*.pyc
+*.sqlite3
+instance/
+Backend/instance/
+
+
+# VENV
+venv/
+.venv/
+
+
+# VSCODE
+.vscode/
+
+# VERCEL
+.vercel/
+
+# GENERATED UPLOADS
+public/static/uploads/
+
+# LOCAL TEST / BUILD
+.pytest_cache/
+.coverage

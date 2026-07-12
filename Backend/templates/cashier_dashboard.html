@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System | Argotelo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        :root { --brown:#4B2E13; --soft:#FBF7F4; --line:#E8DDD5; --text:#2F1D0F; --muted:#8B7D73; --danger:#D92D20; --success:#15803D; }
+        body { margin:0; font-family:"Poppins",sans-serif; background:var(--soft); color:var(--text); }
+        .pos-page { display:grid; grid-template-columns:280px minmax(0,1fr) 400px; min-height:100vh; }
+        .sidebar { background:#fff; border-right:1px solid var(--line); padding:28px 20px; display:flex; flex-direction:column; }
+        .brand { font-size:20px; line-height:1.3; font-weight:800; margin:0 0 38px; }
+        .nav { display:grid; gap:8px; }
+        .nav a { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; text-decoration:none; color:#5F5650; padding:0 16px; border-radius:8px; font-size:14px; font-weight:600; line-height:1.2; }
+        .nav a i { width:20px; height:20px; flex:0 0 20px; display:inline-flex; align-items:center; justify-content:center; font-size:16px; }
+        .nav a span { min-width:0; }
+        .nav a.active { background:var(--brown); color:#fff; }
+        .sidebar-footer { margin-top:auto; border-top:1px solid var(--line); padding-top:18px; display:grid; gap:8px; }
+        .sidebar-footer button { width:100%; min-height:48px; border:0; background:transparent; color:#D92D20; display:flex; align-items:center; gap:12px; font:inherit; font-size:14px; font-weight:600; line-height:1.2; cursor:pointer; padding:0 16px; border-radius:8px; }
+        .sidebar-footer button i { width:20px; height:20px; flex:0 0 20px; display:inline-flex; align-items:center; justify-content:center; font-size:16px; }
+        .catalog { min-width:0; }
+        .topbar { height:66px; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 28px; }
+        .search-box { width:min(420px,100%); height:48px; background:#F5E7DE; border-radius:28px; display:flex; align-items:center; gap:12px; padding:0 18px; }
+        .search-box input { flex:1; border:0; outline:0; background:transparent; font:inherit; }
+        .topbar-right { display:flex; align-items:center; gap:12px; }
+        .profile { display:flex; align-items:center; gap:12px; padding-left:14px; border-left:1px solid var(--line); }
+        .profile h4 { margin:0; font-size:14px; }
+        .profile span { color:var(--muted); font-size:12px; }
+        .catalog-content { padding:28px; }
+        .section-head { display:flex; justify-content:space-between; gap:16px; align-items:center; margin-bottom:22px; }
+        .section-head h1 { margin:0; font-size:24px; }
+        .section-head p { margin:3px 0 0; color:var(--muted); }
+        .toolbar { display:flex; gap:10px; align-items:center; }
+        .toolbar select, .view-btn { height:44px; border:1px solid var(--line); background:#fff; border-radius:999px; padding:0 14px; font:inherit; font-weight:600; }
+        .menu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:24px; }
+        .menu-card { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:0 16px 34px rgba(75,46,19,.06); animation:fadeUp .45s ease; transition:all .3s ease; will-change:transform; }
+        .menu-card:hover { transform:translateY(-10px); box-shadow:0 22px 44px rgba(75,46,19,.12); }
+        .menu-card img, .menu-placeholder { width:100%; aspect-ratio:1.25/1; object-fit:cover; background:#F0E6DD; display:grid; place-items:center; color:var(--brown); font-size:38px; }
+        .menu-card img { transition:.45s; }
+        .menu-card:hover img { transform:scale(1.08); }
+        .menu-body { padding:18px; display:grid; grid-template-columns:minmax(0,1fr) 56px; gap:12px; align-items:end; }
+        .menu-body h3 { grid-column:1/-1; margin:0; font-size:20px; }
+        .menu-body p { margin:0; color:#6E625A; font-size:14px; }
+        .menu-body strong { display:block; margin-top:8px; font-size:20px; }
+        .add-btn { width:56px; height:56px; border:0; border-radius:16px; background:var(--brown); color:#fff; font-size:26px; cursor:pointer; }
+        .menu-card.recipe-missing { opacity:.68; }
+        .recipe-warning { grid-column:1/-1; color:#B45309; font-weight:700; }
+        .add-btn:disabled { opacity:.45; cursor:not-allowed; }
+        .cart { background:#fff; border-left:1px solid var(--line); padding:24px 22px; display:flex; flex-direction:column; gap:14px; min-width:0; }
+        .cart-header { display:flex; justify-content:space-between; align-items:center; }
+        .cart-header h2 { margin:0; font-size:22px; }
+        .reset-link { border:0; background:transparent; color:#D92D20; font:inherit; font-weight:700; cursor:pointer; }
+        .cart-list { flex:0 1 auto; min-height:190px; max-height:38vh; overflow:auto; display:grid; gap:12px; align-content:start; padding-right:4px; }
+        .empty { text-align:center; color:#B2A7A0; padding:44px 18px; }
+        .empty i { display:block; font-size:48px; margin-bottom:10px; }
+        .cart-item { border:1px solid var(--line); border-radius:14px; padding:14px; display:grid; gap:10px; }
+        .cart-row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .cart-item h4 { margin:0; font-size:15px; }
+        .cart-item small { color:var(--muted); }
+        .qty-group { display:flex; align-items:center; gap:8px; }
+        .qty-btn { width:30px; height:30px; border:0; border-radius:8px; background:#F3E9E1; cursor:pointer; font-weight:800; }
+        .remove-btn { border:0; background:#FEE2E2; color:#D92D20; border-radius:8px; padding:8px 10px; cursor:pointer; }
+        .input-field { height:44px; border:1px solid var(--line); border-radius:12px; padding:0 14px; font:inherit; }
+        .input-field:required { border-color:#D8BFAF; }
+        .input-field:focus { outline:0; border-color:var(--brown); box-shadow:0 0 0 3px rgba(75,46,19,.08); }
+        .input-field.input-error { border-color:var(--danger); box-shadow:0 0 0 3px rgba(217,45,32,.08); }
+        .summary { border-radius:18px; background:#FFFDFB; box-shadow:0 18px 38px rgba(75,46,19,.08); padding:18px; display:grid; gap:10px; }
+        .summary-row { display:flex; justify-content:space-between; color:#5E5148; }
+        .summary-total { border-top:1px solid var(--line); padding-top:12px; display:flex; justify-content:space-between; align-items:center; font-size:28px; font-weight:800; }
+        .payment-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:6px; }
+        .payment-option { position:relative; min-height:44px; border:1px solid var(--line); background:#fff; border-radius:999px; padding:0 14px; cursor:pointer; font:inherit; font-size:13px; font-weight:700; color:#4B4038; display:inline-flex; align-items:center; justify-content:center; gap:8px; overflow:hidden; transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease, color .22s ease; }
+        .payment-option::after { content:""; position:absolute; inset:-35%; background:radial-gradient(circle, rgba(255,255,255,.42), transparent 58%); opacity:0; transform:scale(.7); transition:opacity .22s ease, transform .22s ease; pointer-events:none; }
+        .payment-option i { position:relative; z-index:1; font-size:15px; transition:transform .22s ease; }
+        .payment-option span { position:relative; z-index:1; white-space:nowrap; }
+        .payment-option:hover { transform:translateY(-2px); border-color:#C9AD99; box-shadow:0 10px 22px rgba(75,46,19,.12); }
+        .payment-option:hover i { transform:translateY(-1px) scale(1.08); }
+        .payment-option.active { background:#4B2E13; color:#fff; border-color:#4B2E13; box-shadow:0 12px 24px rgba(75,46,19,.22); }
+        .payment-option.active::after { opacity:0; transform:scale(.7); }
+        .payment-option.payment-option--tap { animation:paymentButtonPop .34s ease; }
+        .payment-option.payment-option--tap i { animation:paymentIconPop .34s ease; }
+        .cash-calculator { border:1px solid var(--line); background:#FFF8F2; border-radius:14px; padding:14px; display:grid; gap:12px; }
+        .cash-calculator[hidden] { display:none; }
+        .cash-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .cash-head strong { font-size:14px; }
+        .cash-head span { color:var(--muted); font-size:12px; }
+        .cash-input-row { display:grid; gap:6px; }
+        .cash-input-row label { color:#5E5148; font-size:12px; font-weight:700; }
+        .cash-input-wrap { height:44px; border:1px solid #DECBBE; background:#fff; border-radius:12px; display:flex; align-items:center; gap:8px; padding:0 12px; }
+        .cash-input-wrap span { color:var(--brown); font-weight:800; }
+        .cash-input-wrap input { width:100%; border:0; outline:0; font:inherit; font-weight:700; color:var(--text); }
+        .cash-quick { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+        .cash-quick button { min-height:36px; border:1px solid #DECBBE; background:#fff; border-radius:10px; color:var(--brown); font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+        .cash-quick button:hover { background:#F5E7DE; }
+        .cash-result { border-top:1px solid var(--line); padding-top:10px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .cash-result span { color:#5E5148; font-size:13px; }
+        .cash-result strong { font-size:18px; color:var(--success); }
+        .cash-result.negative strong { color:var(--danger); }
+        .cash-hint { min-height:17px; color:var(--muted); font-size:12px; font-weight:600; }
+        .cash-hint.error { color:var(--danger); }
+        .checkout-btn { position:relative; height:56px; border:0; border-radius:14px; background:#4B2E13; color:#fff; font:inherit; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 12px 24px rgba(75,46,19,.24); overflow:hidden; transition:transform .22s ease, box-shadow .22s ease, background .22s ease; }
+        .checkout-btn::after { content:""; position:absolute; inset:-40% -70%; background:linear-gradient(115deg, transparent 34%, rgba(255,255,255,.28) 50%, transparent 66%); transform:translateX(-60%); opacity:0; pointer-events:none; }
+        .checkout-btn:not(:disabled) { animation:checkoutBreath 2.6s ease-in-out infinite; }
+        .checkout-btn:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 16px 30px rgba(75,46,19,.30); }
+        .checkout-btn:not(:disabled):hover::after { animation:checkoutShine .72s ease; }
+        .checkout-btn:not(:disabled):active { transform:translateY(1px) scale(.985); box-shadow:0 8px 18px rgba(75,46,19,.22); }
+        .checkout-btn:disabled { opacity:.55; cursor:not-allowed; animation:none; }
+        .message { min-height:0; margin:0; color:var(--success); font-size:13px; font-weight:600; }
+        .message:empty { display:none; }
+        .message:not(:empty) { min-height:20px; }
+        .message.error { color:var(--danger); }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes paymentButtonPop { 0% { transform:scale(.96); } 55% { transform:scale(1.04); } 100% { transform:scale(1); } }
+        @keyframes paymentIconPop { 0% { transform:scale(.82) rotate(-8deg); } 70% { transform:scale(1.16) rotate(4deg); } 100% { transform:scale(1) rotate(0); } }
+        @keyframes checkoutBreath { 0%, 100% { box-shadow:0 12px 24px rgba(75,46,19,.24); } 50% { box-shadow:0 16px 30px rgba(75,46,19,.32); } }
+        @keyframes checkoutShine { 0% { opacity:0; transform:translateX(-60%); } 25% { opacity:1; } 100% { opacity:0; transform:translateX(60%); } }
+        @media (prefers-reduced-motion:reduce) { .menu-card, .payment-option, .payment-option.payment-option--tap, .payment-option.payment-option--tap i, .checkout-btn { animation:none; transition:none; } .menu-card img, .payment-option i { transition:none; } }
+        @media (max-width:1100px) { .pos-page { grid-template-columns:280px minmax(0,1fr); } .cart { grid-column:2; border-left:0; border-top:1px solid var(--line); } }
+        @media (max-width:760px) { .pos-page { display:block; } .sidebar { position:static; } .topbar, .section-head { align-items:flex-start; flex-direction:column; height:auto; padding:18px; } .cart { border-left:0; } }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cashier_sidebar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance_modal.css') }}">
+</head>
+
+<body>
+    <main class="pos-page">
+        <aside class="sidebar">
+            <h1 class="brand">ARGOTELO SALATIGA</h1>
+            <nav class="nav">
+                <a href="{{ url_for('cashier.pos') }}" class="active"><i class="bi bi-calculator"></i><span>POS System</span></a>
+                <a href="{{ url_for('cashier.inventory') }}"><i class="bi bi-archive"></i><span>Inventory</span></a>
+                <a href="{{ url_for('cashier.transaction') }}"><i class="bi bi-receipt"></i><span>Riwayat Transaksi</span></a>
+                <a href="#" class="js-attendance-trigger"><i class="bi bi-person-check"></i><span>Absensi</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" type="button"><i class="bi bi-box-arrow-right"></i><span>Sign Out</span></button>
+            </div>
+        </aside>
+
+        <section class="catalog">
+            <header class="topbar">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input id="menuSearch" type="search" placeholder="Search Menu..." autocomplete="off">
+                </div>
+                <div class="topbar-right">
+                    <div class="profile">
+                        <div>
+                            <h4 id="cashierName">Memuat kasir...</h4>
+                            <span id="cashierRole">KASIR</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="catalog-content">
+                <div class="section-head">
+                    <div>
+                        <h1>Katalog Makanan</h1>
+                        <p><span id="menuCount">0</span> items available</p>
+                    </div>
+                    <div class="toolbar">
+                        <select id="categoryFilter">
+                            <option value="ALL">Semua Kategori</option>
+                        </select>
+                        <button class="view-btn" type="button" id="refreshBtn"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                    </div>
+                </div>
+                <div class="menu-grid" id="menuGrid">
+                    <div class="empty">Memuat menu...</div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="cart">
+            <div class="cart-header">
+                <h2>Pesanan Baru</h2>
+                <button class="reset-link" id="resetCartBtn" type="button"><i class="bi bi-trash"></i> Reset</button>
+            </div>
+            <div class="cart-list" id="cartList">
+                <div class="empty"><i class="bi bi-cart-x"></i>Keranjang masih kosong.<br>Pilih menu untuk memulai.</div>
+            </div>
+            <input class="input-field" id="customerName" type="text" placeholder="Nama pelanggan wajib" autocomplete="off" required>
+            <div class="summary">
+                <div class="summary-row"><span>Subtotal</span><strong id="subtotal">Rp 0</strong></div>
+                <div class="summary-row"><span>Pajak (10%)</span><strong id="tax">Rp 0</strong></div>
+                <div class="summary-total"><span>Total</span><strong id="total">Rp 0</strong></div>
+                <div>
+                    <small>Metode Pembayaran</small>
+                    <div class="payment-options" id="paymentOptions">
+                        <button class="payment-option active" type="button" data-method="CASH"><i class="bi bi-cash-stack"></i><span>Cash</span></button>
+                        <button class="payment-option" type="button" data-method="CASHLESS"><i class="bi bi-qr-code-scan"></i><span>Cashless</span></button>
+                    </div>
+                </div>
+                <div class="cash-calculator" id="cashCalculator">
+                    <div class="cash-head">
+                        <strong>Kalkulator Kembalian</strong>
+                        <span>Cash</span>
+                    </div>
+                    <div class="cash-input-row">
+                        <label for="cashReceived">Uang diterima</label>
+                        <div class="cash-input-wrap">
+                            <span>Rp</span>
+                            <input id="cashReceived" type="text" inputmode="numeric" autocomplete="off" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="cash-quick" id="cashQuickButtons"></div>
+                    <div class="cash-result" id="cashResult">
+                        <span>Kembalian</span>
+                        <strong id="cashChange">Rp 0</strong>
+                    </div>
+                    <div class="cash-hint" id="cashHint">Masukkan nominal uang pelanggan.</div>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn" type="button">Bayar Sekarang</button>
+                <p class="message" id="checkoutMessage"></p>
+            </div>
+        </aside>
+    </main>
+    {% include '_attendance_modal.html' %}
+    <!-- MIDTRANS SNAP: key and environment are loaded from Vercel variables. -->
+    {% if midtrans_client_key %}
+    <script
+        type="text/javascript"
+        src="{{ midtrans_snap_url }}"
+        data-client-key="{{ midtrans_client_key }}">
+    </script>
+    {% endif %}
+
+
+    <!-- POS LOGIC -->
+    <script src="{{ url_for('static', filename='js/cashier_pos.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/attendance_modal.js') }}"></script>
+
+</body>
+</html>

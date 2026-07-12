@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riwayat Transaksi | Argotelo</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/cashier_transaction.css') }}">
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/cashier_sidebar.css') }}">
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/attendance_modal.css') }}">
+
+</head>
+
+
+<body>
+
+
+<div class="wrapper">
+
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+
+<div class="sidebar-logo">
+
+<h2>ARGOTELO SALATIGA</h2>
+
+</div>
+
+
+<nav class="sidebar-menu">
+
+
+<a href="{{ url_for('cashier.pos') }}">
+
+<i class="bi bi-calculator"></i>
+
+<span>POS System</span>
+
+</a>
+
+
+<a href="{{ url_for('cashier.inventory') }}">
+
+<i class="bi bi-archive"></i>
+
+<span>Inventory</span>
+
+</a>
+
+
+<a href="{{ url_for('cashier.transaction') }}"
+class="active">
+
+<i class="bi bi-receipt"></i>
+
+<span>Riwayat Transaksi</span>
+
+</a>
+
+<a href="#" class="js-attendance-trigger">
+
+<i class="bi bi-person-check"></i>
+
+<span>Absensi</span>
+
+</a>
+
+</nav>
+
+
+<div class="sidebar-footer">
+
+<button id="logoutBtn" type="button">
+
+<i class="bi bi-box-arrow-right"></i>
+
+<span>Sign Out</span>
+
+</button>
+
+</div>
+
+
+</aside>
+
+
+
+
+
+<!-- MAIN -->
+<main class="main-content">
+
+
+<header class="topbar">
+
+
+<div class="search-box">
+
+<i class="bi bi-search"></i>
+
+<input id="transactionSearch" placeholder="Cari transaksi...">
+
+</div>
+
+
+<div class="profile">
+
+<div class="profile-info">
+
+<h4 id="cashierName">Kasir</h4>
+
+<span>KASIR</span>
+
+</div>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+<div class="page-header">
+
+
+<div class="page-title">
+
+<h1>Riwayat Transaksi</h1>
+
+<p>Daftar transaksi yang dilakukan kasir.</p>
+
+</div>
+
+
+</div>
+
+<section class="history-filter" aria-label="Filter riwayat transaksi">
+
+<div class="period-tabs" id="periodTabs">
+
+<button class="active" type="button" data-period="day">
+<i class="bi bi-calendar-day"></i>
+<span>Hari</span>
+</button>
+
+<button type="button" data-period="week">
+<i class="bi bi-calendar-week"></i>
+<span>Minggu</span>
+</button>
+
+<button type="button" data-period="month">
+<i class="bi bi-calendar-month"></i>
+<span>Bulan</span>
+</button>
+
+<button type="button" data-period="year">
+<i class="bi bi-calendar3"></i>
+<span>Tahun</span>
+</button>
+
+</div>
+
+<div class="period-field">
+
+<label id="periodLabel" for="periodInput">Tanggal</label>
+
+<div class="period-input">
+
+<i id="periodIcon" class="bi bi-calendar-day"></i>
+
+<input id="periodInput" type="date">
+
+</div>
+
+</div>
+
+<div class="period-actions">
+
+<button class="apply-period" id="applyPeriodBtn" type="button">
+<i class="bi bi-funnel"></i>
+<span>Terapkan</span>
+</button>
+
+<button class="reset-period" id="resetPeriodBtn" type="button">
+<i class="bi bi-arrow-counterclockwise"></i>
+<span>Reset</span>
+</button>
+
+</div>
+
+<div class="period-summary">
+
+<strong id="filterResultCount">0 transaksi</strong>
+
+<span id="filterPeriodText">Memuat periode...</span>
+
+</div>
+
+</section>
+
+
+
+
+
+<div class="transaction-card">
+
+
+<div class="table-responsive">
+
+
+<table class="transaction-table">
+
+
+<thead>
+
+<tr>
+
+<th>No Transaksi</th>
+
+<th>Tanggal</th>
+
+<th>Pelanggan</th>
+
+<th>Pembayaran</th>
+
+<th>Total</th>
+
+<th>Aksi</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody id="transactionTable">
+
+
+<tr>
+
+<td colspan="6">
+
+Memuat transaksi...
+
+</td>
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+
+</main>
+
+
+</div>
+
+
+{% include '_attendance_modal.html' %}
+
+<script src="{{ url_for('static', filename='js/cashier_transaction.js') }}"></script>
+<script src="{{ url_for('static', filename='js/attendance_modal.js') }}"></script>
+
+
+</body>
+
+</html>
