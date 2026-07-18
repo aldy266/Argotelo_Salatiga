@@ -3,7 +3,6 @@ from utils.auth import login_required, role_name_required
 from routes.auth import verify_password
 from model import db, User, StaffSchedule
 from sqlalchemy import text
-from utils.midtrans_service import create_payment
 import time
 from datetime import datetime, timedelta
 from routes.staff import clock_in_schedule, clock_out_schedule
@@ -104,6 +103,7 @@ def transaction_history():
 def create_midtrans_payment():
 
     try:
+        from utils.midtrans_service import create_payment
 
         data = request.get_json(silent=True) or {}
 

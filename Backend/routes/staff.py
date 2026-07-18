@@ -8,9 +8,6 @@ from datetime import datetime, timedelta, date, time
 from functools import wraps
 from sqlalchemy import func, text
 from werkzeug.utils import secure_filename
-from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Alignment, Font, PatternFill
-import cloudinary.uploader
 from model import db, Staff, Shift, StaffSchedule, Attendance, LeaveRequest, User
 from utils.roles import expand_role_names, role_form_code, role_group, role_label, role_sort_key
 
@@ -324,6 +321,8 @@ def clock_out_schedule(schedule, now):
 
 
 def format_staff_import_sheet(workbook, sheet_name):
+    from openpyxl.styles import Alignment, Font, PatternFill
+
     sheet = workbook.active
     sheet.title = sheet_name
     sheet.append(STAFF_IMPORT_HEADERS)
@@ -356,6 +355,9 @@ def format_staff_import_sheet(workbook, sheet_name):
 
 
 def build_staff_template_workbook():
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill
+
     workbook = Workbook()
     sheet = format_staff_import_sheet(workbook, "Staff Import")
     sheet.append([
@@ -395,6 +397,9 @@ def build_staff_template_workbook():
 
 
 def build_dummy_staff_workbook():
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment
+
     workbook = Workbook()
     sheet = format_staff_import_sheet(workbook, "Staff Dummy Data")
     dummy_rows = [
@@ -503,6 +508,9 @@ def save_leave_document(file_storage):
         }
 
     try:
+        import cloudinary_config  # noqa: F401
+        import cloudinary.uploader
+
         file_storage.stream.seek(0)
         upload = cloudinary.uploader.upload(file_storage, **upload_options)
     except Exception as error:
@@ -564,6 +572,8 @@ def download_dummy_staff_excel(user):
 @staff_bp.route("/import-excel", methods=["POST"])
 @check_authorization("FINANCE")
 def import_staff_excel(user):
+    from openpyxl import load_workbook
+
     file_storage = request.files.get("file")
     validation_error = validate_import_file(file_storage)
 

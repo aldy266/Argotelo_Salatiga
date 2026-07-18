@@ -222,8 +222,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function loadUser() {
         try {
-            const result = await api("/api/me");
-            state.user = result.user;
+            state.user = window.argoteloCurrentUserPromise
+                ? await window.argoteloCurrentUserPromise
+                : (await api("/api/me")).user;
             renderUser();
         } catch (error) {
             window.location.href = "/";
@@ -792,5 +793,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadUser();
     bindInteractions();
     await loadDashboard("today");
-    setInterval(() => loadDashboard(state.filter).catch(console.error), 30000);
+    setInterval(() => {
+        if (!document.hidden) {
+            loadDashboard(state.filter).catch(console.error);
+        }
+    }, 60000);
 });

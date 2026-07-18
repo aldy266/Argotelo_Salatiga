@@ -1,14 +1,20 @@
+function getArgoteloCurrentUser() {
+    if (!window.argoteloCurrentUserPromise) {
+        window.argoteloCurrentUserPromise = (async () => {
+            const response = await fetch("/api/me", { credentials: "include" });
+            const data = await response.json();
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || "Belum login");
+            }
+            return data.user;
+        })();
+    }
+
+    return window.argoteloCurrentUserPromise;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     "use strict";
-
-    async function currentUser() {
-        const response = await fetch("/api/me", { credentials: "include" });
-        const data = await response.json();
-        if (!response.ok || data.success === false) {
-            throw new Error(data.message || "Belum login");
-        }
-        return data.user;
-    }
 
     function hideNavByHref(partial) {
         document.querySelectorAll(`.sidebar-menu a[href*="${partial}"]`).forEach(link => {
@@ -25,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const user = await currentUser();
+        const user = await getArgoteloCurrentUser();
         const role = String(user.role || "").toUpperCase();
         const financeRoles = ["FINANCE", "TIM_FINANCE"];
         const storeRoles = ["KASIR", "KOORDINATOR_TOKO", "TIM_TOKO"];

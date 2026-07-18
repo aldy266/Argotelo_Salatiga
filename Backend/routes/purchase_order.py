@@ -5,8 +5,6 @@ from flask import Blueprint, jsonify, request, send_file, session
 from model import db, Inventory, PurchaseOrder, StockMovement
 from utils.auth import role_name_required
 
-from openpyxl import Workbook
-
 import io
 
 
@@ -423,6 +421,8 @@ def history_po():
 )
 @role_name_required("OWNER", "FINANCE")
 def export_history_stock():
+    from openpyxl import Workbook
+
 
 
     start_date = request.args.get(

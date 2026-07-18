@@ -2,7 +2,6 @@ from datetime import datetime, time
 import io
 
 from flask import Blueprint, jsonify, redirect, render_template, request, send_file, url_for
-from openpyxl import Workbook
 from sqlalchemy import func
 
 from model import Transaction
@@ -86,6 +85,8 @@ def finance_dashboard_api():
 @finance_bp.route("/api/report/export")
 @role_name_required("FINANCE", "OWNER")
 def finance_report_export():
+    from openpyxl import Workbook
+
     try:
         transactions = transaction_query().order_by(Transaction.created_at.desc()).all()
     except Exception:

@@ -10,9 +10,6 @@ from model import Role, Shift, User, db
 from utils.roles import ORG_ROLES
 from utils.staff_profiles import ensure_staff_profiles_for_employee_users
 
-# Configure Cloudinary once for menu images and leave-document uploads.
-import cloudinary_config  # noqa: F401
-
 from routes.auth import auth_bp
 from routes.owner import owner_bp
 from routes.cashier import cashier_bp

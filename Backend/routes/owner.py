@@ -5,11 +5,10 @@ import json
 import os
 from tabnanny import check
 
-import cloudinary.uploader
 from flask import Blueprint, current_app, jsonify, redirect, render_template, request, send_file, session, url_for
-from openpyxl import Workbook
 from sqlalchemy import func, or_
 from sqlalchemy import text
+from sqlalchemy.orm import joinedload, selectinload
 from werkzeug.security import generate_password_hash
 import bcrypt
 
@@ -304,6 +303,9 @@ def upload_menu_image(file_storage):
     ]):
         raise ValueError("Cloudinary belum dikonfigurasi")
 
+    import cloudinary_config  # noqa: F401
+    import cloudinary.uploader
+
     upload = cloudinary.uploader.upload(
         file_storage,
         folder="argotelo/menu"
@@ -363,23 +365,17 @@ def dashboard_api():
     except ValueError as error:
         return api_error(str(error), 400)
 
-    sales_total = db.session.query(func.coalesce(func.sum(Transaction.total), 0)).filter(
+    sales_summary = db.session.query(
+        func.coalesce(func.sum(Transaction.total), 0).label("sales_total"),
+        func.count(Transaction.id).label("transaction_count"),
+    ).filter(
         Transaction.created_at >= start_dt,
         Transaction.created_at <= end_dt,
         Transaction.status == "COMPLETED",
-    ).scalar()
-
-    transaction_count = Transaction.query.filter(
-        Transaction.created_at >= start_dt,
-        Transaction.created_at <= end_dt,
-        Transaction.status == "COMPLETED",
-    ).count()
-
-    period_income = db.session.query(func.coalesce(func.sum(Transaction.total), 0)).filter(
-        Transaction.created_at >= start_dt,
-        Transaction.created_at <= end_dt,
-        Transaction.status == "COMPLETED",
-    ).scalar()
+    ).one()
+    sales_total = sales_summary.sales_total
+    transaction_count = sales_summary.transaction_count
+    period_income = sales_total
 
     total_scheduled = db.session.query(func.count(StaffSchedule.id)).join(
         Staff, StaffSchedule.staff_id == Staff.id
@@ -400,16 +396,32 @@ def dashboard_api():
     ).scalar() or 0
 
     today = waktu_wib().date()
+    weekly_start = today - timedelta(days=6)
+    weekly_rows = db.session.query(
+        func.date(Transaction.created_at).label("sale_date"),
+        func.coalesce(func.sum(Transaction.total), 0).label("total"),
+    ).filter(
+        Transaction.created_at >= datetime.combine(weekly_start, time.min),
+        Transaction.created_at <= datetime.combine(today, time.max),
+        Transaction.status == "COMPLETED",
+    ).group_by(
+        func.date(Transaction.created_at)
+    ).all()
+    weekly_totals = {
+        (
+            row.sale_date.isoformat()
+            if hasattr(row.sale_date, "isoformat")
+            else str(row.sale_date)
+        ): Decimal(row.total or 0)
+        for row in weekly_rows
+    }
+
     weekly_sales = []
     max_sales = Decimal("0")
     day_labels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
     for offset in range(6, -1, -1):
         day = today - timedelta(days=offset)
-        total = db.session.query(func.coalesce(func.sum(Transaction.total), 0)).filter(
-            Transaction.created_at >= datetime.combine(day, time.min),
-            Transaction.created_at <= datetime.combine(day, time.max),
-            Transaction.status == "COMPLETED",
-        ).scalar() or Decimal("0")
+        total = weekly_totals.get(day.isoformat(), Decimal("0"))
         max_sales = max(max_sales, Decimal(total))
         weekly_sales.append({
             "date": day.isoformat(),
@@ -446,7 +458,10 @@ def dashboard_api():
         func.sum(TransactionItem.quantity).desc()
     ).limit(5).all()
 
-    recent_transactions = Transaction.query.filter(
+    recent_transactions = Transaction.query.options(
+        joinedload(Transaction.cashier),
+        selectinload(Transaction.items).joinedload(TransactionItem.menu_item),
+    ).filter(
         Transaction.created_at >= start_dt,
         Transaction.created_at <= end_dt,
         Transaction.status == "COMPLETED",
@@ -701,6 +716,8 @@ def get_transaction_detail(transaction_id):
 @owner_bp.route("/api/transaction/export-excel")
 @role_name_required("OWNER", "FINANCE")
 def export_transactions_excel():
+    from openpyxl import Workbook
+
     transactions = transaction_query_from_request().order_by(
         Transaction.created_at.desc()
     ).all()

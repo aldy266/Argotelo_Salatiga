@@ -5,8 +5,6 @@ from flask import Blueprint, request, jsonify, send_file, session
 from model import db, Inventory, PurchaseOrder, StockMovement
 from utils.auth import role_name_required
 
-from openpyxl import Workbook
-
 import io
 
 
@@ -392,6 +390,7 @@ def delete_inventory(id):
 )
 @role_name_required("OWNER", "FINANCE")
 def export_inventory():
+    from openpyxl import Workbook
 
 
     items = Inventory.query.all()
