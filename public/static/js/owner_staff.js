@@ -94,6 +94,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const saveEmployee =
     document.getElementById("saveEmployee");
 
+    const employeePassword =
+    document.getElementById("employeePassword");
+
+    const toggleEmployeePassword =
+    document.getElementById("toggleEmployeePassword");
+
 
     // =====================================
     // STATE
@@ -2294,11 +2300,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function openEmployeeModal() {
+        setEmployeePasswordVisibility(false);
         employeeModal.classList.remove("hidden");
     }
 
     function closeEmployee() {
+        setEmployeePasswordVisibility(false);
         employeeModal.classList.add("hidden");
+    }
+
+    function setEmployeePasswordVisibility(visible) {
+        if (!employeePassword || !toggleEmployeePassword) return;
+
+        employeePassword.type = visible ? "text" : "password";
+        toggleEmployeePassword.setAttribute("aria-pressed", String(visible));
+        toggleEmployeePassword.setAttribute(
+            "aria-label",
+            visible ? "Sembunyikan password" : "Tampilkan password"
+        );
+
+        const icon = toggleEmployeePassword.querySelector("i");
+        if (icon) {
+            icon.className = visible ? "bi bi-eye-slash" : "bi bi-eye";
+        }
     }
 
     btnAddEmployee?.addEventListener(
@@ -2315,6 +2339,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         "click",
         closeEmployee
     );
+
+    toggleEmployeePassword?.addEventListener("click", () => {
+        setEmployeePasswordVisibility(employeePassword?.type === "password");
+    });
 
 
     // ======================
@@ -2572,9 +2600,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             });
 
-            function openEmployeeForm() {
+    function openEmployeeForm() {
 
         editingUserId = null;
+        setEmployeePasswordVisibility(false);
 
         document.getElementById("employeeModalTitle").textContent = "Tambah Akun";
 
@@ -2591,6 +2620,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function closeEmployeeForm() {
 
+        setEmployeePasswordVisibility(false);
         employeeModal.classList.add("hidden");
 
     }
@@ -2685,6 +2715,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             result.data.role;
 
         document.getElementById("employeePassword").value = "";
+        setEmployeePasswordVisibility(false);
 
         document.getElementById("employeeModalTitle").textContent = "Edit Akun";
 

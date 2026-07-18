@@ -30,7 +30,7 @@
     <!-- CSS -->
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/owner_staff.css') }}?v=20260718-1">
+          href="{{ url_for('static', filename='css/owner_staff.css') }}?v=20260718-2">
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/attendance_modal.css') }}">
 
@@ -1100,10 +1100,21 @@
 
                 <label>
                     Password
-                    <input
-                        id="employeePassword"
-                        type="password"
-                        placeholder="Minimal 8 karakter">
+                    <span class="employee-password-field">
+                        <input
+                            id="employeePassword"
+                            type="password"
+                            placeholder="Minimal 8 karakter"
+                            autocomplete="new-password">
+                        <button
+                            id="toggleEmployeePassword"
+                            class="employee-password-toggle"
+                            type="button"
+                            aria-label="Tampilkan password"
+                            aria-pressed="false">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </span>
                 </label>
 
                 <label>
@@ -1160,7 +1171,7 @@
 {% endif %}
 
     <script src="{{ url_for('static', filename='js/role_access_ui.js') }}?v=20260712-3"></script>
-    <script src="{{ url_for('static', filename='js/owner_staff.js') }}?v=20260718-1"></script>
+    <script src="{{ url_for('static', filename='js/owner_staff.js') }}?v=20260718-2"></script>
     <script src="{{ url_for('static', filename='js/owner_account_controls.js') }}"></script>
 {% if current_user_role in ["FINANCE", "TIM_FINANCE"] %}
     <script src="{{ url_for('static', filename='js/attendance_modal.js') }}"></script>
