@@ -1484,24 +1484,6 @@ if(savePassword){
     }
 
 
-
-    // =====================================================
-    // FLOATING BUTTON
-    // =====================================================
-
-    const floatingButton =
-        document.querySelector(".floating-button");
-
-    if(floatingButton){
-
-        floatingButton.addEventListener("click",()=>{
-
-            console.log("Floating Button Click");
-
-        });
-
-    }
-
     // =====================================================
     // TRANSACTION
     // =====================================================
