@@ -1028,6 +1028,48 @@ button{
 
 }
 
+.deactivate-btn{
+
+    min-width:45px;
+
+    height:45px;
+
+    padding:0 12px;
+
+    border-radius:10px;
+
+    border:1px solid #F4D6A5;
+
+    background:#FFFBEB;
+
+    color:#B45309;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    gap:7px;
+
+}
+
+.deactivate-btn:hover{
+
+    background:#B45309;
+
+    color:#fff;
+
+    border-color:#B45309;
+
+    transform:translateY(-2px);
+
+}
+
 .restore-btn{
 
     min-width:45px;

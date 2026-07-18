@@ -623,13 +623,22 @@ def delete_menu_item(item_id):
     if not item:
         return api_error("Menu tidak ditemukan", 404)
 
-    item.status = "INACTIVE"
+    # Menu yang sudah ada di transaksi tidak boleh dihapus agar riwayat
+    # penjualan dan laporan tetap dapat menampilkan detail menu dengan benar.
+    if item.transaction_items:
+        return api_error(
+            "Menu tidak dapat dihapus karena sudah memiliki riwayat transaksi. "
+            "Nonaktifkan menu melalui Edit jika tidak ingin lagi dijual.",
+            409,
+        )
+
     try:
+        db.session.delete(item)
         db.session.commit()
-        return api_success(message="Menu berhasil dinonaktifkan")
+        return api_success(message="Menu berhasil dihapus")
     except Exception:
         db.session.rollback()
-        return api_error("Menu gagal dinonaktifkan", 500)
+        return api_error("Menu gagal dihapus", 500)
 
 
 def transaction_query_from_request():

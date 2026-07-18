@@ -187,9 +187,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <i class="bi bi-pencil-fill"></i>
                                 Edit
                             </button>
-                            <button class="${inactive ? "restore-btn" : "delete-btn"}" type="button" data-action="toggle">
-                                <i class="bi ${inactive ? "bi-check2-circle" : "bi-trash"}"></i>
+                            <button class="${inactive ? "restore-btn" : "deactivate-btn"}" type="button" data-action="toggle-status">
+                                <i class="bi ${inactive ? "bi-check2-circle" : "bi-pause-circle"}"></i>
                                 <span>${inactive ? "Aktifkan" : "Nonaktif"}</span>
+                            </button>
+                            <button class="delete-btn" type="button" data-action="delete">
+                                <i class="bi bi-trash"></i>
+                                <span>Hapus</span>
                             </button>
                         </div>
                     </div>
@@ -546,6 +550,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         modal.querySelector("input[name='name']").focus();
     }
 
+    async function deleteMenu(menu) {
+        const confirmed = confirm(
+            `Hapus menu "${menu.name}" secara permanen? Tindakan ini tidak dapat dibatalkan.`
+        );
+        if (!confirmed) return;
+
+        await api(`/api/menu-items/${menu.id}`, { method: "DELETE" });
+        await loadMenus();
+    }
+
     async function toggleMenuStatus(menu) {
         const inactive = menu.status === "INACTIVE";
         const message = inactive
@@ -553,18 +567,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             : `Nonaktifkan menu "${menu.name}"? Menu nonaktif tidak tampil di POS.`;
         if (!confirm(message)) return;
 
-        if (inactive) {
-            const formData = new FormData();
-            formData.append("name", menu.name);
-            formData.append("category", menu.category);
-            formData.append("price", menu.price);
-            formData.append("status", "ACTIVE");
-            if (menu.image_url) formData.append("image_url", menu.image_url);
-            await api(`/api/menu-items/${menu.id}`, { method: "PUT", body: formData });
-        } else {
-            await api(`/api/menu-items/${menu.id}`, { method: "DELETE" });
-        }
+        const formData = new FormData();
+        formData.append("name", menu.name);
+        formData.append("category", menu.category);
+        formData.append("price", menu.price);
+        formData.append("status", inactive ? "ACTIVE" : "INACTIVE");
+        if (menu.image_url) formData.append("image_url", menu.image_url);
 
+        await api(`/api/menu-items/${menu.id}`, { method: "PUT", body: formData });
         await loadMenus();
     }
 
@@ -668,7 +678,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     openMenuForm(menu);
                     return;
                 }
-                if (actionButton.dataset.action === "toggle") {
+                if (actionButton.dataset.action === "delete") {
+                    await deleteMenu(menu);
+                }
+                if (actionButton.dataset.action === "toggle-status") {
                     await toggleMenuStatus(menu);
                 }
             } catch (error) {
