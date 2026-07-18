@@ -1319,11 +1319,24 @@ body{
 
     justify-content:flex-end;
 
+    align-items:center;
+
+    gap:6px;
+
 }
 
 .shift-action .edit-btn{
     width:64px;
     min-width:64px;
+}
+
+.shift-action .shift-delete-btn{
+    width:34px;
+    min-width:34px;
+    min-height:32px;
+    justify-content:center !important;
+    padding:0 !important;
+    border-radius:7px !important;
 }
 
 .add-schedule{

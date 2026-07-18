@@ -1096,6 +1096,49 @@ def update_shift(user, shift_id):
             "message": str(e)
         }), 500
 
+
+@staff_bp.route("/shift/<int:shift_id>", methods=["DELETE"])
+@check_authorization("OWNER")
+def delete_shift(user, shift_id):
+    """Deactivate an unused shift while preserving historical schedules."""
+    try:
+        shift = Shift.query.get(shift_id)
+        if not shift or shift.status != "ACTIVE":
+            return jsonify({
+                "success": False,
+                "message": "Shift tidak ditemukan"
+            }), 404
+
+        active_schedule_count = StaffSchedule.query.filter(
+            StaffSchedule.shift_id == shift.id,
+            StaffSchedule.schedule_date >= waktu_wib().date()
+        ).count()
+
+        if active_schedule_count:
+            return jsonify({
+                "success": False,
+                "message": (
+                    "Shift tidak dapat dihapus karena masih digunakan pada "
+                    f"{active_schedule_count} jadwal hari ini atau mendatang. "
+                    "Hapus atau pindahkan jadwal tersebut terlebih dahulu."
+                )
+            }), 409
+
+        shift.status = "INACTIVE"
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": f"Shift {shift.shift_name} berhasil dihapus"
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+
 # ====================================================
 # SCHEDULE MANAGEMENT
 # ====================================================

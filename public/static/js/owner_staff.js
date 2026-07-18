@@ -933,6 +933,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                                     <button class="edit-btn shift-edit-btn" type="button" data-shift-id="${shift.id}">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </button>
+                                    <button
+                                        class="delete-btn shift-delete-btn"
+                                        type="button"
+                                        title="Hapus shift"
+                                        aria-label="Hapus shift ${escapeHtml(shift.shift_name)}"
+                                        data-shift-id="${shift.id}">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                     ` : `<span class="readonly-action">Read-only</span>`}
                                 </div>
                             </div>
@@ -1541,6 +1549,42 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
 
+    async function deleteShiftData(shiftId, deleteButton) {
+        if (!isOwnerRole()) {
+            showToast("Hanya owner yang dapat mengelola shift", "error");
+            return;
+        }
+
+        const shift = shiftData.find(
+            item => String(item.id) === String(shiftId)
+        );
+        if (!shift) {
+            showToast("Data shift tidak ditemukan", "error");
+            return;
+        }
+
+        if (!confirm(
+            `Hapus shift "${shift.shift_name}"?\n\n` +
+            "Shift yang masih dipakai pada jadwal hari ini atau mendatang tidak dapat dihapus."
+        )) {
+            return;
+        }
+
+        deleteButton.disabled = true;
+        try {
+            const response = await apiRequest(
+                `/api/staff/shift/${shift.id}`,
+                { method: "DELETE" }
+            );
+            showToast(response.message || "Shift berhasil dihapus");
+            await loadShiftData();
+        } finally {
+            if (deleteButton.isConnected) {
+                deleteButton.disabled = false;
+            }
+        }
+    }
+
     // =====================================
     // TODAY'S DATE
     // =====================================
@@ -1640,6 +1684,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 editBtn.dataset.shiftId
             );
 
+            return;
+        }
+
+        // tombol hapus shift
+        const deleteBtn = e.target.closest(".shift-delete-btn");
+
+        if (deleteBtn) {
+            if (!isOwnerRole()) return;
+
+            deleteShiftData(
+                deleteBtn.dataset.shiftId,
+                deleteBtn
+            ).catch(error => console.error(error));
         }
 
 
