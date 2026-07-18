@@ -179,6 +179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <h4>${rupiah(menu.price)}</h4>
                             </div>
                             <span>${escapeHtml(menu.category)}</span>
+                            <span class="menu-id">ID Menu: #${escapeHtml(menu.id)}</span>
                             <span class="menu-status ${inactive ? "inactive" : "active"}">${statusLabel(menu.status)}</span>
                             ${recipeBadge(menu)}
                         </div>
