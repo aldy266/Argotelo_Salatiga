@@ -30,7 +30,7 @@
     <!-- CSS -->
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/owner_staff.css') }}?v=20260718-2">
+          href="{{ url_for('static', filename='css/owner_staff.css') }}?v=20260718-3">
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/attendance_modal.css') }}">
 
@@ -295,26 +295,34 @@
                         </div>
 
                         <!-- TABLE -->
-                        
-                        <table class="attendance-table">
 
-                            <thead>
-                                <tr>
-                                    <th>Nama</th>
-                                    <th>Masuk</th>
-                                    <th>Pulang</th>
-                                    <th>Shift</th>
-                                    <th>Status</th>
-                                    <th>Jam Kerja</th>
-                                    <th>Aksi</th>
-                                </tr>
+                        <div
+                            class="attendance-table-scroll"
+                            role="region"
+                            aria-label="Daftar kehadiran karyawan"
+                            tabindex="0">
+
+                            <table class="attendance-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Masuk</th>
+                                        <th>Pulang</th>
+                                        <th>Shift</th>
+                                        <th>Status</th>
+                                        <th>Jam Kerja</th>
+                                        <th>Aksi</th>
+                                    </tr>
                                 </thead>
 
-                            <tbody id="attendanceTableBody">
+                                <tbody id="attendanceTableBody">
 
-                            </tbody>
+                                </tbody>
 
-                        </table>
+                            </table>
+
+                        </div>
 
                         <!-- FOOTER -->
                         <div class="attendance-footer">

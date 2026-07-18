@@ -1634,16 +1634,34 @@ button:hover{
     overflow:hidden;
 }
 
-.attendance-card > .attendance-table{
+.attendance-table-scroll{
+    width:100%;
+    max-height:clamp(380px, 56vh, 560px);
+    overflow:auto;
+    border:1px solid #EFE5DE;
+    border-radius:12px;
+    scrollbar-gutter:stable;
+    overscroll-behavior:contain;
+}
+
+.attendance-table-scroll:focus-visible{
+    outline:3px solid rgba(90, 55, 24, .16);
+    outline-offset:3px;
+}
+
+.attendance-table-scroll > .attendance-table{
     border-collapse:separate;
     border-spacing:0;
 }
 
-.attendance-card > .attendance-table thead{
+.attendance-table-scroll > .attendance-table thead{
     background:transparent;
 }
 
-.attendance-card > .attendance-table thead th{
+.attendance-table-scroll > .attendance-table thead th{
+    position:sticky;
+    top:0;
+    z-index:3;
     background:#F7F1EC;
     border-bottom:1px solid #EADFD6;
     color:#70645B;
@@ -1653,67 +1671,67 @@ button:hover{
     padding:16px;
 }
 
-.attendance-card > .attendance-table thead th:first-child{
+.attendance-table-scroll > .attendance-table thead th:first-child{
     border-radius:12px 0 0 12px;
 }
 
-.attendance-card > .attendance-table thead th:last-child{
+.attendance-table-scroll > .attendance-table thead th:last-child{
     border-radius:0 12px 12px 0;
 }
 
-.attendance-card > .attendance-table tbody td{
+.attendance-table-scroll > .attendance-table tbody td{
     height:76px;
     padding:16px;
     border-bottom:1px solid #EFE5DE;
     color:#2F1D0F;
 }
 
-.attendance-card > .attendance-table tbody tr:last-child td{
+.attendance-table-scroll > .attendance-table tbody tr:last-child td{
     border-bottom:none;
 }
 
-.attendance-card > .attendance-table tbody tr:hover td{
+.attendance-table-scroll > .attendance-table tbody tr:hover td{
     background:#FFFCFA;
 }
 
-.attendance-card > .attendance-table th:nth-child(1),
-.attendance-card > .attendance-table td:nth-child(1){
+.attendance-table-scroll > .attendance-table th:nth-child(1),
+.attendance-table-scroll > .attendance-table td:nth-child(1){
     width:22%;
 }
 
-.attendance-card > .attendance-table th:nth-child(2),
-.attendance-card > .attendance-table td:nth-child(2),
-.attendance-card > .attendance-table th:nth-child(3),
-.attendance-card > .attendance-table td:nth-child(3){
+.attendance-table-scroll > .attendance-table th:nth-child(2),
+.attendance-table-scroll > .attendance-table td:nth-child(2),
+.attendance-table-scroll > .attendance-table th:nth-child(3),
+.attendance-table-scroll > .attendance-table td:nth-child(3){
     width:10%;
     color:#5F5650;
     font-variant-numeric:tabular-nums;
 }
 
-.attendance-card > .attendance-table th:nth-child(4),
-.attendance-card > .attendance-table td:nth-child(4){
+.attendance-table-scroll > .attendance-table th:nth-child(4),
+.attendance-table-scroll > .attendance-table td:nth-child(4){
     width:16%;
 }
 
-.attendance-card > .attendance-table th:nth-child(5),
-.attendance-card > .attendance-table td:nth-child(5){
+.attendance-table-scroll > .attendance-table th:nth-child(5),
+.attendance-table-scroll > .attendance-table td:nth-child(5){
     width:13%;
 }
 
-.attendance-card > .attendance-table th:nth-child(6),
-.attendance-card > .attendance-table td:nth-child(6){
+.attendance-table-scroll > .attendance-table th:nth-child(6),
+.attendance-table-scroll > .attendance-table td:nth-child(6){
     width:11%;
     font-variant-numeric:tabular-nums;
     white-space:nowrap;
 }
 
-.attendance-card > .attendance-table th:nth-child(7),
-.attendance-card > .attendance-table td:nth-child(7){
+.attendance-table-scroll > .attendance-table th:nth-child(7),
+.attendance-table-scroll > .attendance-table td:nth-child(7){
     width:18%;
     text-align:right;
 }
 
-.attendance-card > .attendance-table td:first-child strong{
+.attendance-table-scroll > .attendance-table td:first-child strong{
     display:block;
     font-size:14px;
     font-weight:700;
@@ -2450,8 +2468,12 @@ html{
 
     .attendance-card{
 
-        overflow-x:auto;
+        overflow:hidden;
 
+    }
+
+    .attendance-table-scroll{
+        max-height:55vh;
     }
 
     .attendance-table{
