@@ -1558,11 +1558,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         logoutBtn.addEventListener("click", async event => {
             event.preventDefault();
             try {
-                await fetch("/api/logout", { method: "POST", credentials: "include" });
+                const response = await fetch("/api/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
+                const result = await response.json().catch(() => ({}));
+                window.location.href = result.redirect_url || "/";
             } catch (error) {
                 console.error("Error logging out:", error);
+                window.location.href = "/";
             }
-            window.location.href = "/";
         });
     }
 

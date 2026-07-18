@@ -431,8 +431,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".logout-setting").forEach(button => {
             button.addEventListener("click", async event => {
                 event.preventDefault();
-                await fetch("/api/logout", { method: "POST", credentials: "include" });
-                window.location.href = "/";
+                const response = await fetch("/api/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
+                const result = await response.json().catch(() => ({}));
+                window.location.href = result.redirect_url || "/";
             });
         });
     }
